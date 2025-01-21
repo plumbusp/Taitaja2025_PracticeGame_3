@@ -4,10 +4,11 @@ using UnityEngine;
 [RequireComponent(typeof(SpriteRenderer))]
 public class Screen : MonoBehaviour
 {
-    public event Action OnProblemFixed;
+    public event Action<Screen, GameObject> OnPuzzleNeeded;
 
     [SerializeField] private Color _calmColor;
     [SerializeField] private Color _alertColor;
+    [SerializeField] private GameObject _puzzlePiecePrefab;
 
     private SpriteRenderer _spriteRenderer;
 
@@ -27,10 +28,13 @@ public class Screen : MonoBehaviour
             }
             else
             {
-                ChangeVisualsToAlert();
+                ChangeVisualsToAlert();            
             }
         }
     }
+
+    public bool Interactable { private get; set; }
+
     private void Start()
     {
         _spriteRenderer = GetComponent<SpriteRenderer>();
@@ -44,5 +48,17 @@ public class Screen : MonoBehaviour
     private void ChangeVisualsToCalm()
     {
         _spriteRenderer.color = _calmColor;
+    }
+
+    private void OnMouseDown()
+    {
+        if (!Interactable)
+            return;
+
+        Debug.Log("OnMouse Down " + name);
+        if (!_active)
+            return;
+        Debug.Log("OnMouse Down And Works " + name);
+        OnPuzzleNeeded?.Invoke(this, _puzzlePiecePrefab);
     }
 }

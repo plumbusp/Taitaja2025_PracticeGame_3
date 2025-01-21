@@ -9,15 +9,35 @@ public class ScreensController : MonoBehaviour
 
     public List<Screen> _screens;
     private List<Screen> _activeScreens = new();
-
+    private Screen _openedScreen;
     private bool _busy = false;
+    private bool _inPuzzleWindow;
 
     private void Start()
     {
+        foreach (Screen screen in _screens)
+        {
+            screen.OnPuzzleNeeded += OpenNewPuzzle;
+        }
+    }
+    private void OnDestroy()
+    {
+        foreach (Screen screen in _screens)
+        {
+            screen.OnPuzzleNeeded -= OpenNewPuzzle;
+        }
     }
 
     private void Update()
     {
+        if (_inPuzzleWindow)
+        {
+            if (Input.GetKeyDown(KeyCode.Escape))
+            {
+                CloseCurrentPuzzle();
+            }
+        }
+
         if (_busy)
             return;
 
@@ -55,5 +75,26 @@ public class ScreensController : MonoBehaviour
         problem.Active = true;
 
         return true;
+    }
+
+    private void OpenNewPuzzle(Screen correspondingScreen, GameObject puzzlePrefab)
+    {
+        foreach (var screen in _screens)
+        {
+            screen.Interactable = false;
+        }
+        _openedScreen = correspondingScreen;
+        PuzzleManager.Instance.OpenPuzzle(puzzlePrefab);
+        _inPuzzleWindow = true;
+    }
+
+    private void CloseCurrentPuzzle()
+    {
+        foreach (var screen in _screens)
+        {
+            screen.Interactable = true;
+        }
+        PuzzleManager.Instance.ClosePuzzle();
+        _inPuzzleWindow = false;
     }
 }
