@@ -1,8 +1,10 @@
+using System;
 using UnityEngine;
 using UnityEngine.UI;
 
 public class HealthController : MonoBehaviour
 {
+    public event Action OnDead;
     [SerializeField] private Slider _HealthSlider;
     [SerializeField] private float _decreasingSpeed;
     [SerializeField] private float _increasingSpeed;
@@ -22,15 +24,11 @@ public class HealthController : MonoBehaviour
         }
     }
 
-    //[SerializeField] private EndGameScreenController _endGameScreenController;
-
     private void Start()
     {
         _HealthSlider.maxValue = _maxValue;
         _HealthSlider.minValue = 0;
         _HealthSlider.value = _maxValue;
-
-        //_table.OnPerformed += DecreaseValue;
     }
     private void Update()
     {
@@ -39,9 +37,9 @@ public class HealthController : MonoBehaviour
         else
             _HealthSlider.value += _increasingSpeed * Time.deltaTime;
 
-        if (_HealthSlider.value >= _deadValue)
+        if (_HealthSlider.value <= _deadValue)
         {
-            // TO-DO DEAD
+            OnDead?.Invoke();
         }
     }
     private void DecreaseValue()

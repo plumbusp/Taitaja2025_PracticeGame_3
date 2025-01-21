@@ -1,8 +1,10 @@
+using System;
 using TMPro;
 using UnityEngine;
 
 public class WinStateTimer : MonoBehaviour
 {
+    public event Action OnWin;
     [SerializeField] private float _secUntilWin = 10;
     [SerializeField] private TMP_Text _timeText;
 
@@ -15,7 +17,7 @@ public class WinStateTimer : MonoBehaviour
             return;
         }
         DisplayTime(0);
-        Debug.Log("Dead");
+        OnWin?.Invoke();
     }
 
     void DisplayTime(float timeToDisplay)

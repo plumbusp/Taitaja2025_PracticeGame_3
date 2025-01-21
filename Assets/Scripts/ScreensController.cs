@@ -105,6 +105,11 @@ public class ScreensController : MonoBehaviour
 
     private void HandlePuzzleComplete()
     {
+        foreach (var screen in _screens)
+        {
+            screen.Interactable = true;
+        }
+
         _openedScreen.Active = false;
         _healthController.ActiveDecreasersAmount--;
     }
