@@ -18,6 +18,7 @@ public class ScreensController : MonoBehaviour
         foreach (Screen screen in _screens)
         {
             screen.OnPuzzleNeeded += OpenNewPuzzle;
+            screen.Interactable = true;
         }
     }
     private void OnDestroy()

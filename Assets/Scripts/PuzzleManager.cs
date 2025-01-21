@@ -13,6 +13,7 @@ public class PuzzleManager : MonoBehaviour
     [SerializeField] private float _GapThickness;
     [SerializeField] private int _Size;
     [SerializeField] private GameObject _puzzleVisuals;
+    [SerializeField] private float _PuzzleScale;
 
     private GameObject _curentPiecePrefab;
     private List<Transform> _inScenePieces;
@@ -33,7 +34,6 @@ public class PuzzleManager : MonoBehaviour
 
     void Start()
     {
-        _puzzleVisuals.SetActive(false);
         _puzzleExists = false;
         _inScenePieces = new List<Transform>();
     }
@@ -42,6 +42,8 @@ public class PuzzleManager : MonoBehaviour
     {
         _puzzleVisuals.SetActive(true);
 
+        DestroyCurrentPuzzle();
+
         _curentPiecePrefab = piecePrefab;
         CreateGamePieces();
         Shuffle();
@@ -49,7 +51,6 @@ public class PuzzleManager : MonoBehaviour
     }
     public void ClosePuzzle()
     {
-        DestroyCurrentPuzzle();
         _puzzleVisuals.SetActive(false);
     }
 
@@ -57,12 +58,13 @@ public class PuzzleManager : MonoBehaviour
     {
         //if(_shuffling)
         //    return;
+
         if (!_puzzleExists)
             return;
 
         if (CheckCompletion())
         {
-            DestroyCurrentPuzzle();
+            Debug.Log("CheckCompletion");
             OnPuzzleComplete?.Invoke();
         }
 
@@ -145,7 +147,8 @@ public class PuzzleManager : MonoBehaviour
     // Create the game setup with size x size pieces.
     private void CreateGamePieces()
     {
-        // This is the width of each tile.
+        _puzzleBoard.localScale = Vector3.one * _PuzzleScale; // Apply scale to the entire puzzle.
+
         float width = 1 / (float)_Size;
         for (int row = 0; row < _Size; row++)
         {
@@ -153,13 +156,13 @@ public class PuzzleManager : MonoBehaviour
             {
                 Transform piece = Instantiate(_curentPiecePrefab.transform, _puzzleBoard);
                 _inScenePieces.Add(piece);
-                // Pieces will be in a game board going from -1 to +1.
+
                 piece.localPosition = new Vector3(-1 + (2 * width * col) + width,
                                                   +1 - (2 * width * row) - width,
                                                   0);
                 piece.localScale = ((2 * width) - _GapThickness) * Vector3.one;
                 piece.name = $"{(row * _Size) + col}";
-                // We want an empty space in the bottom right.
+
                 if ((row == _Size - 1) && (col == _Size - 1))
                 {
                     _emptyLocation = (_Size * _Size) - 1;
@@ -167,16 +170,13 @@ public class PuzzleManager : MonoBehaviour
                 }
                 else
                 {
-                    // We want to map the UV coordinates appropriately, they are 0->1.
                     float gap = _GapThickness / 2;
                     Mesh mesh = piece.GetComponent<MeshFilter>().mesh;
                     Vector2[] uv = new Vector2[4];
-                    // UV coord order: (0, 1), (1, 1), (0, 0), (1, 0)
                     uv[0] = new Vector2((width * col) + gap, 1 - ((width * (row + 1)) - gap));
                     uv[1] = new Vector2((width * (col + 1)) - gap, 1 - ((width * (row + 1)) - gap));
                     uv[2] = new Vector2((width * col) + gap, 1 - ((width * row) + gap));
                     uv[3] = new Vector2((width * (col + 1)) - gap, 1 - ((width * row) + gap));
-                    // Assign our new UVs to the mesh.
                     mesh.uv = uv;
                 }
             }
@@ -188,6 +188,7 @@ public class PuzzleManager : MonoBehaviour
         {
             Destroy(_inScenePieces[i].gameObject);
             Debug.Log("Destroyed " + name);
+            _inScenePieces[i] = null;
         }
         _inScenePieces.Clear();
     }
