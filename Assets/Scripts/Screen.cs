@@ -2,15 +2,15 @@ using System;
 using UnityEngine;
 
 [RequireComponent(typeof(SpriteRenderer))]
+[RequireComponent(typeof(Animator))]
 public class Screen : MonoBehaviour
 {
     public event Action<Screen, PuzzlePiece> OnPuzzleNeeded;
 
-    [SerializeField] private Color _calmColor;
-    [SerializeField] private Color _alertColor;
     [SerializeField] private PuzzlePiece _puzzlePiecePrefab;
 
     private SpriteRenderer _spriteRenderer;
+    private Animator _animator;
 
     private bool _active;
     public bool Active 
@@ -38,16 +38,17 @@ public class Screen : MonoBehaviour
     private void Start()
     {
         _spriteRenderer = GetComponent<SpriteRenderer>();
+        _animator = GetComponent<Animator>();
     }
 
     private void ChangeVisualsToAlert()
     {
-        _spriteRenderer.color = _alertColor;
+        _animator.SetBool("IsBroken", true);
     }
 
     private void ChangeVisualsToCalm()
     {
-        _spriteRenderer.color = _calmColor;
+        _animator.SetBool("IsBroken", false);
     }
 
     private void OnMouseDown()
