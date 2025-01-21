@@ -39,8 +39,14 @@ TagManager:
   - 
   - 
   m_SortingLayers:
+  - name: Background
+    uniqueID: 1709358583
+    locked: 0
   - name: MainRoomScreen
     uniqueID: 1423802949
+    locked: 0
+  - name: Icons
+    uniqueID: 2206078825
     locked: 0
   - name: PuzzleBackground
     uniqueID: 2388673433
