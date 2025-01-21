@@ -1423,7 +1423,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Game Name
+  m_text: Safe Secure
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 7ad1684d8d236554b86328d9e7e37992, type: 2}
   m_sharedMaterial: {fileID: -984261037337041494, guid: 7ad1684d8d236554b86328d9e7e37992, type: 2}
