@@ -2,7 +2,6 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.Purchasing;
 
 public class PuzzleManager : MonoBehaviour
 {
@@ -12,7 +11,8 @@ public class PuzzleManager : MonoBehaviour
 
     [SerializeField] private Transform _puzzleBoard;
     [SerializeField] private float _GapThickness;
-    [SerializeField] private int _Size;
+    [SerializeField] private int _SizeX; // Number of columns
+    [SerializeField] private int _SizeY; // Number of rows
     [SerializeField] private GameObject _puzzleVisuals;
     [SerializeField] private float _PuzzleScale;
 
@@ -52,6 +52,7 @@ public class PuzzleManager : MonoBehaviour
         _puzzleExists = true;
         _puzzleCompleted = false;
     }
+
     public void ClosePuzzle()
     {
         _puzzleVisuals.SetActive(false);
@@ -59,90 +60,63 @@ public class PuzzleManager : MonoBehaviour
 
     void Update()
     {
-        //if(_shuffling)
-        //    return;
+        if (!_puzzleExists || _puzzleCompleted) return;
 
-        if (!_puzzleExists)
-            return;
-        if(!_puzzleCompleted)
-            CheckCompletion();
+        CheckCompletion();
     }
 
     private bool SwapIfValid(int i, int offset, int colCheck)
     {
-        if (((i % _Size) != colCheck) && ((i + offset) == _emptyLocation))
+        int targetIndex = i + offset;
+        if (targetIndex < 0 || targetIndex >= (_SizeX * _SizeY)) return false;
+
+        // Ensure column constraints are met
+        if ((i % _SizeX == 0 && offset == -1) || // Prevent wrap-around to the previous row
+            ((i + 1) % _SizeX == 0 && offset == 1)) // Prevent wrap-around to the next row
         {
-            (_inScenePieces[i], _inScenePieces[i + offset]) = (_inScenePieces[i + offset], _inScenePieces[i]);
-            (_inScenePieces[i].Transform.localPosition, _inScenePieces[i + offset].Transform.localPosition) = ((_inScenePieces[i + offset].Transform.localPosition, _inScenePieces[i].Transform.localPosition));
+            return false;
+        }
+
+        if (targetIndex == _emptyLocation)
+        {
+            (_inScenePieces[i], _inScenePieces[targetIndex]) = (_inScenePieces[targetIndex], _inScenePieces[i]);
+            (_inScenePieces[i].Transform.localPosition, _inScenePieces[targetIndex].Transform.localPosition) =
+                (_inScenePieces[targetIndex].Transform.localPosition, _inScenePieces[i].Transform.localPosition);
             _emptyLocation = i;
             return true;
         }
         return false;
     }
 
-    private void HandlePieceChange(PuzzlePiece piece)
-    {
-        Debug.Log("HandlePieceChange");
-        for(int i = 0; i < _inScenePieces.Count; i++)
-        {
-            if (_inScenePieces[i] == piece)
-            {
-                Debug.Log("Yeap Yeap");
-                // Check each direction to see if valid move.
-                // We break out on success so we don't carry on and swap back again.
-                if (SwapIfValid(i, -_Size, _Size)) { break; }
-                if (SwapIfValid(i, +_Size, _Size)) { break; }
-                if (SwapIfValid(i, -1, 0)) { break; }
-                if (SwapIfValid(i, +1, _Size - 1)) { break; }
-            }
-        }
-    }
-
     private void CheckCompletion()
     {
         for (int i = 0; i < _inScenePieces.Count; i++)
         {
-            if (_inScenePieces[i].name != $"{i}") // If not complete
-            {
-                return;
-            }
+            if (_inScenePieces[i].name != $"{i}") return; // If not complete
         }
 
-        // If complete
-        for (int i = _inScenePieces.Count - 1; i >= 0; i--)
+        // Puzzle is complete
+        foreach (var piece in _inScenePieces)
         {
-            _inScenePieces[i].OnClick -= HandlePieceChange;
+            piece.OnClick -= HandlePieceChange;
         }
-        Debug.Log("Complete");
+
+        Debug.Log("Puzzle Complete!");
         _puzzleCompleted = true;
         OnPuzzleComplete?.Invoke();
-        // To -Do: Play sounds and effects
     }
 
     private void Shuffle()
     {
         _shuffling = true;
         int count = 0;
-        int last = 0;
-        while (count < (_Size * _Size * _Size))
+        while (count < (_SizeX * _SizeY * 3))
         {
-            int rnd = UnityEngine.Random.Range(0, _Size * _Size);
-            if (rnd == last) { continue; }
-            last = _emptyLocation;
-
-            if (SwapIfValid(rnd, -_Size, _Size))
-            {
-                count++;
-            }
-            else if (SwapIfValid(rnd, +_Size, _Size))
-            {
-                count++;
-            }
-            else if (SwapIfValid(rnd, -1, 0))
-            {
-                count++;
-            }
-            else if (SwapIfValid(rnd, +1, _Size - 1))
+            int rnd = UnityEngine.Random.Range(0, _SizeX * _SizeY);
+            if (SwapIfValid(rnd, -_SizeX, _SizeX) ||
+                SwapIfValid(rnd, +_SizeX, _SizeX) ||
+                SwapIfValid(rnd, -1, 0) ||
+                SwapIfValid(rnd, +1, _SizeX - 1))
             {
                 count++;
             }
@@ -150,41 +124,46 @@ public class PuzzleManager : MonoBehaviour
         _shuffling = false;
     }
 
-    // Create the game setup with size x size pieces.
     private void CreateGamePieces()
     {
         _puzzleBoard.localScale = Vector3.one * _PuzzleScale; // Apply scale to the entire puzzle.
 
-        float width = 1 / (float)_Size;
-        for (int row = 0; row < _Size; row++)
+        float pieceWidth = 1f / _SizeX;
+        float pieceHeight = 1f / _SizeY;
+
+        for (int row = 0; row < _SizeY; row++)
         {
-            for (int col = 0; col < _Size; col++)
+            for (int col = 0; col < _SizeX; col++)
             {
                 PuzzlePiece piece = Instantiate(_curentPiecePrefab, _puzzleBoard);
                 piece.OnClick += HandlePieceChange;
 
                 _inScenePieces.Add(piece);
 
-                piece.Transform.localPosition = new Vector3(-1 + (2 * width * col) + width,
-                                                  +1 - (2 * width * row) - width,
-                                                  0);
-                piece.Transform.localScale = ((2 * width) - _GapThickness) * Vector3.one;
-                piece.name = $"{(row * _Size) + col}";
+                piece.Transform.localPosition = new Vector3(-1 + (2 * pieceWidth * col) + pieceWidth,
+                                                            +1 - (2 * pieceHeight * row) - pieceHeight,
+                                                            0);
+                piece.Transform.localScale = new Vector3((2 * pieceWidth) - _GapThickness,
+                                                         (2 * pieceHeight) - _GapThickness,
+                                                         1);
+                piece.name = $"{(row * _SizeX) + col}";
 
-                if ((row == _Size - 1) && (col == _Size - 1))
+                // Mark the bottom-right piece as empty
+                if (row == _SizeY - 1 && col == _SizeX - 1)
                 {
-                    _emptyLocation = (_Size * _Size) - 1;
+                    _emptyLocation = (_SizeY * _SizeX) - 1;
                     piece.gameObject.SetActive(false);
                 }
                 else
                 {
+                    // Set UV mapping for the piece
                     float gap = _GapThickness / 2;
                     Mesh mesh = piece.GetComponent<MeshFilter>().mesh;
                     Vector2[] uv = new Vector2[4];
-                    uv[0] = new Vector2((width * col) + gap, 1 - ((width * (row + 1)) - gap));
-                    uv[1] = new Vector2((width * (col + 1)) - gap, 1 - ((width * (row + 1)) - gap));
-                    uv[2] = new Vector2((width * col) + gap, 1 - ((width * row) + gap));
-                    uv[3] = new Vector2((width * (col + 1)) - gap, 1 - ((width * row) + gap));
+                    uv[0] = new Vector2((pieceWidth * col) + gap, 1 - ((pieceHeight * (row + 1)) - gap));
+                    uv[1] = new Vector2((pieceWidth * (col + 1)) - gap, 1 - ((pieceHeight * (row + 1)) - gap));
+                    uv[2] = new Vector2((pieceWidth * col) + gap, 1 - ((pieceHeight * row) + gap));
+                    uv[3] = new Vector2((pieceWidth * (col + 1)) - gap, 1 - ((pieceHeight * row) + gap));
                     mesh.uv = uv;
                 }
             }
@@ -196,8 +175,26 @@ public class PuzzleManager : MonoBehaviour
         for (int i = _inScenePieces.Count - 1; i >= 0; i--)
         {
             Destroy(_inScenePieces[i].gameObject);
-            _inScenePieces[i] = null;
         }
         _inScenePieces.Clear();
     }
+
+    private void HandlePieceChange(PuzzlePiece piece)
+    {
+        Debug.Log("HandlePieceChange");
+        for (int i = 0; i < _inScenePieces.Count; i++)
+        {
+            if (_inScenePieces[i] == piece)
+            {
+                Debug.Log("Yeap Yeap");
+                // Check each direction to see if valid move.
+                // We break out on success so we don't carry on and swap back again.
+                if (SwapIfValid(i, -_SizeX, _SizeX)) { break; }
+                if (SwapIfValid(i, +_SizeX, _SizeX)) { break; }
+                if (SwapIfValid(i, -1, 0)) { break; }
+                if (SwapIfValid(i, +1, _SizeX - 1)) { break; }
+            }
+        }
+    }
+
 }
