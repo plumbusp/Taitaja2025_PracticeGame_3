@@ -485,9 +485,17 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 633219420441667098, guid: b83ac99043453404283726c1468d3f75, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 7218359588475997539, guid: b83ac99043453404283726c1468d3f75, type: 3}
       propertyPath: m_Name
       value: Room objects
+      objectReference: {fileID: 0}
+    - target: {fileID: 7218359588475997539, guid: b83ac99043453404283726c1468d3f75, type: 3}
+      propertyPath: m_IsActive
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
