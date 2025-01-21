@@ -18,7 +18,6 @@ public class PuzzlePiece : MonoBehaviour
     }
     private void OnMouseDown()
     {
-        Debug.Log("Puzzle Piece on mouse down" + name);
         OnClick?.Invoke(this);
     }
 }
