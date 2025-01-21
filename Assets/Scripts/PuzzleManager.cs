@@ -20,7 +20,8 @@ public class PuzzleManager : MonoBehaviour
     private List<PuzzlePiece> _inScenePieces;
     private int _emptyLocation;
     private bool _shuffling = false;
-    private bool _puzzleExists;
+    private bool _puzzleExists = false;
+    private bool _puzzleCompleted = false;
 
     private void Awake()
     {
@@ -49,6 +50,7 @@ public class PuzzleManager : MonoBehaviour
         CreateGamePieces();
         Shuffle();
         _puzzleExists = true;
+        _puzzleCompleted = false;
     }
     public void ClosePuzzle()
     {
@@ -62,13 +64,8 @@ public class PuzzleManager : MonoBehaviour
 
         if (!_puzzleExists)
             return;
-
-        if (CheckCompletion())
-        {
-            Debug.Log("CheckCompletion");
-            OnPuzzleComplete?.Invoke();
-        }
-
+        if(!_puzzleCompleted)
+            CheckCompletion();
     }
 
     private bool SwapIfValid(int i, int offset, int colCheck)
@@ -101,16 +98,25 @@ public class PuzzleManager : MonoBehaviour
         }
     }
 
-    private bool CheckCompletion()
+    private void CheckCompletion()
     {
         for (int i = 0; i < _inScenePieces.Count; i++)
         {
-            if (_inScenePieces[i].name != $"{i}")
+            if (_inScenePieces[i].name != $"{i}") // If not complete
             {
-                return false;
+                return;
             }
         }
-        return true;
+
+        // If complete
+        for (int i = _inScenePieces.Count - 1; i >= 0; i--)
+        {
+            _inScenePieces[i].OnClick -= HandlePieceChange;
+        }
+        Debug.Log("Complete");
+        _puzzleCompleted = true;
+        OnPuzzleComplete?.Invoke();
+        // To -Do: Play sounds and effects
     }
 
     private void Shuffle()
@@ -184,13 +190,12 @@ public class PuzzleManager : MonoBehaviour
             }
         }
     }
+
     private void DestroyCurrentPuzzle()
     {
         for (int i = _inScenePieces.Count - 1; i >= 0; i--)
         {
-            _inScenePieces[i].OnClick -= HandlePieceChange;
             Destroy(_inScenePieces[i].gameObject);
-            Debug.Log("Destroyed " + name);
             _inScenePieces[i] = null;
         }
         _inScenePieces.Clear();

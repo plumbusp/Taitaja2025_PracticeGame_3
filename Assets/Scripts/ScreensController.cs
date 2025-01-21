@@ -4,6 +4,7 @@ using UnityEngine;
 
 public class ScreensController : MonoBehaviour
 {
+    [SerializeField] HealthController _healthController;
     [SerializeField] private float _waitTime;
     private float _timer = 0;
 
@@ -20,6 +21,7 @@ public class ScreensController : MonoBehaviour
             screen.OnPuzzleNeeded += OpenNewPuzzle;
             screen.Interactable = true;
         }
+        PuzzleManager.Instance.OnPuzzleComplete += HandlePuzzleComplete;
     }
     private void OnDestroy()
     {
@@ -27,6 +29,7 @@ public class ScreensController : MonoBehaviour
         {
             screen.OnPuzzleNeeded -= OpenNewPuzzle;
         }
+        PuzzleManager.Instance.OnPuzzleComplete -= HandlePuzzleComplete;
     }
 
     private void Update()
@@ -74,6 +77,7 @@ public class ScreensController : MonoBehaviour
         var problem = _screens[randomIndex];
         _activeScreens.Add(problem);
         problem.Active = true;
+        _healthController.ActiveDecreasersAmount++;
 
         return true;
     }
@@ -97,5 +101,11 @@ public class ScreensController : MonoBehaviour
         }
         PuzzleManager.Instance.ClosePuzzle();
         _inPuzzleWindow = false;
+    }
+
+    private void HandlePuzzleComplete()
+    {
+        _openedScreen.Active = false;
+        _healthController.ActiveDecreasersAmount--;
     }
 }
