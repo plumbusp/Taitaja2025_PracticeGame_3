@@ -44,8 +44,6 @@ public class PuzzleManager : MonoBehaviour
     {
         _puzzleVisuals.SetActive(true);
 
-        DestroyCurrentPuzzle();
-
         _curentPiecePrefab = piecePrefab;
         CreateGamePieces();
         Shuffle();
@@ -56,6 +54,7 @@ public class PuzzleManager : MonoBehaviour
     public void ClosePuzzle()
     {
         _puzzleVisuals.SetActive(false);
+        DestroyCurrentPuzzle();
     }
 
     void Update()
@@ -92,18 +91,29 @@ public class PuzzleManager : MonoBehaviour
     {
         for (int i = 0; i < _inScenePieces.Count; i++)
         {
-            if (_inScenePieces[i].name != $"{i}") return; // If not complete
+            if (_inScenePieces[i].name != $"{i}") return;
         }
 
-        // Puzzle is complete
         foreach (var piece in _inScenePieces)
         {
             piece.OnClick -= HandlePieceChange;
         }
 
         Debug.Log("Puzzle Complete!");
+        ClosePuzzle();
+        AudioManager.instance.PlayAudio(SFXType.WinSound);
         _puzzleCompleted = true;
+
         OnPuzzleComplete?.Invoke();
+    }
+
+    private void DestroyCurrentPuzzle()
+    {
+        for (int i = _inScenePieces.Count - 1; i >= 0; i--)
+        {
+            Destroy(_inScenePieces[i].gameObject);
+        }
+        _inScenePieces.Clear();
     }
 
     private void Shuffle()
@@ -170,15 +180,6 @@ public class PuzzleManager : MonoBehaviour
         }
     }
 
-    private void DestroyCurrentPuzzle()
-    {
-        for (int i = _inScenePieces.Count - 1; i >= 0; i--)
-        {
-            Destroy(_inScenePieces[i].gameObject);
-        }
-        _inScenePieces.Clear();
-    }
-
     private void HandlePieceChange(PuzzlePiece piece)
     {
         Debug.Log("HandlePieceChange");
@@ -189,10 +190,10 @@ public class PuzzleManager : MonoBehaviour
                 Debug.Log("Yeap Yeap");
                 // Check each direction to see if valid move.
                 // We break out on success so we don't carry on and swap back again.
-                if (SwapIfValid(i, -_SizeX, _SizeX)) { break; }
-                if (SwapIfValid(i, +_SizeX, _SizeX)) { break; }
-                if (SwapIfValid(i, -1, 0)) { break; }
-                if (SwapIfValid(i, +1, _SizeX - 1)) { break; }
+                if (SwapIfValid(i, -_SizeX, _SizeX)) { AudioManager.instance.PlayAudio(SFXType.SwooshSound); break; }
+                if (SwapIfValid(i, +_SizeX, _SizeX)) { AudioManager.instance.PlayAudio(SFXType.SwooshSound); break; }
+                if (SwapIfValid(i, -1, 0)) { AudioManager.instance.PlayAudio(SFXType.SwooshSound); break; }
+                if (SwapIfValid(i, +1, _SizeX - 1)) { AudioManager.instance.PlayAudio(SFXType.SwooshSound); break; }
             }
         }
     }
