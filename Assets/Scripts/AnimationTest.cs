@@ -32,6 +32,6 @@ public class AnimationTest : MonoBehaviour
 
     private void TestAnimation2()
     {
-        animator1.SetBool("IsBroken", true);
+        animator2.SetBool("IsBroken", true);
     }
 }
