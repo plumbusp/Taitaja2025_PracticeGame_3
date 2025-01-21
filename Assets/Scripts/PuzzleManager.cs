@@ -196,7 +196,6 @@ public class PuzzleManager : MonoBehaviour
         for (int i = _inScenePieces.Count - 1; i >= 0; i--)
         {
             Destroy(_inScenePieces[i].gameObject);
-            Debug.Log("Destroyed " + name);
             _inScenePieces[i] = null;
         }
         _inScenePieces.Clear();
