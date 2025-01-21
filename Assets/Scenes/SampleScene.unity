@@ -870,7 +870,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 2772119211522801557, guid: 9f3e4396490e60841ad3f77b3f09bf67, type: 3}
       propertyPath: m_SortingLayer
-      value: -2
+      value: -3
       objectReference: {fileID: 0}
     - target: {fileID: 5292223367027691656, guid: 9f3e4396490e60841ad3f77b3f09bf67, type: 3}
       propertyPath: m_LocalPosition.x

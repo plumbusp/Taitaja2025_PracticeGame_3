@@ -76,7 +76,7 @@ SpriteRenderer:
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 1423802949
-  m_SortingLayer: -2
+  m_SortingLayer: -3
   m_SortingOrder: 0
   m_Sprite: {fileID: 7482667652216324306, guid: 311925a002f4447b3a28927169b83ea6, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
@@ -103,7 +103,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _calmColor: {r: 1, g: 1, b: 1, a: 1}
   _alertColor: {r: 1, g: 0.33490568, b: 0.33490568, a: 1}
-  _puzzlePiecePrefab: {fileID: 2921743713946879606, guid: 9072dfc280beaea4188a749c32f02626, type: 3}
+  _puzzlePiecePrefab: {fileID: -372962801525290943, guid: 9072dfc280beaea4188a749c32f02626, type: 3}
 --- !u!61 &2836503549832588570
 BoxCollider2D:
   m_ObjectHideFlags: 0

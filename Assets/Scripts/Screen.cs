@@ -4,11 +4,11 @@ using UnityEngine;
 [RequireComponent(typeof(SpriteRenderer))]
 public class Screen : MonoBehaviour
 {
-    public event Action<Screen, GameObject> OnPuzzleNeeded;
+    public event Action<Screen, PuzzlePiece> OnPuzzleNeeded;
 
     [SerializeField] private Color _calmColor;
     [SerializeField] private Color _alertColor;
-    [SerializeField] private GameObject _puzzlePiecePrefab;
+    [SerializeField] private PuzzlePiece _puzzlePiecePrefab;
 
     private SpriteRenderer _spriteRenderer;
 

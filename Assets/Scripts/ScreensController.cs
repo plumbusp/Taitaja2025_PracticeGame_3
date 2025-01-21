@@ -78,7 +78,7 @@ public class ScreensController : MonoBehaviour
         return true;
     }
 
-    private void OpenNewPuzzle(Screen correspondingScreen, GameObject puzzlePrefab)
+    private void OpenNewPuzzle(Screen correspondingScreen, PuzzlePiece puzzlePrefab)
     {
         foreach (var screen in _screens)
         {

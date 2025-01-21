@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Purchasing;
 
 public class PuzzleManager : MonoBehaviour
 {
@@ -15,8 +16,8 @@ public class PuzzleManager : MonoBehaviour
     [SerializeField] private GameObject _puzzleVisuals;
     [SerializeField] private float _PuzzleScale;
 
-    private GameObject _curentPiecePrefab;
-    private List<Transform> _inScenePieces;
+    private PuzzlePiece _curentPiecePrefab;
+    private List<PuzzlePiece> _inScenePieces;
     private int _emptyLocation;
     private bool _shuffling = false;
     private bool _puzzleExists;
@@ -35,10 +36,10 @@ public class PuzzleManager : MonoBehaviour
     void Start()
     {
         _puzzleExists = false;
-        _inScenePieces = new List<Transform>();
+        _inScenePieces = new List<PuzzlePiece>();
     }
 
-    public void OpenPuzzle(GameObject piecePrefab)
+    public void OpenPuzzle(PuzzlePiece piecePrefab)
     {
         _puzzleVisuals.SetActive(true);
 
@@ -68,25 +69,6 @@ public class PuzzleManager : MonoBehaviour
             OnPuzzleComplete?.Invoke();
         }
 
-        if (Input.GetMouseButtonDown(0))
-        {
-            RaycastHit2D hit = Physics2D.Raycast(Camera.main.ScreenToWorldPoint(Input.mousePosition), Vector2.zero);
-            if (hit)
-            {
-                for (int i = 0; i < _inScenePieces.Count; i++)
-                {
-                    if (_inScenePieces[i] == hit.transform)
-                    {
-                        // Check each direction to see if valid move.
-                        // We break out on success so we don't carry on and swap back again.
-                        if (SwapIfValid(i, -_Size, _Size)) { break; }
-                        if (SwapIfValid(i, +_Size, _Size)) { break; }
-                        if (SwapIfValid(i, -1, 0)) { break; }
-                        if (SwapIfValid(i, +1, _Size - 1)) { break; }
-                    }
-                }
-            }
-        }
     }
 
     private bool SwapIfValid(int i, int offset, int colCheck)
@@ -94,11 +76,29 @@ public class PuzzleManager : MonoBehaviour
         if (((i % _Size) != colCheck) && ((i + offset) == _emptyLocation))
         {
             (_inScenePieces[i], _inScenePieces[i + offset]) = (_inScenePieces[i + offset], _inScenePieces[i]);
-            (_inScenePieces[i].localPosition, _inScenePieces[i + offset].localPosition) = ((_inScenePieces[i + offset].localPosition, _inScenePieces[i].localPosition));
+            (_inScenePieces[i].Transform.localPosition, _inScenePieces[i + offset].Transform.localPosition) = ((_inScenePieces[i + offset].Transform.localPosition, _inScenePieces[i].Transform.localPosition));
             _emptyLocation = i;
             return true;
         }
         return false;
+    }
+
+    private void HandlePieceChange(PuzzlePiece piece)
+    {
+        Debug.Log("HandlePieceChange");
+        for(int i = 0; i < _inScenePieces.Count; i++)
+        {
+            if (_inScenePieces[i] == piece)
+            {
+                Debug.Log("Yeap Yeap");
+                // Check each direction to see if valid move.
+                // We break out on success so we don't carry on and swap back again.
+                if (SwapIfValid(i, -_Size, _Size)) { break; }
+                if (SwapIfValid(i, +_Size, _Size)) { break; }
+                if (SwapIfValid(i, -1, 0)) { break; }
+                if (SwapIfValid(i, +1, _Size - 1)) { break; }
+            }
+        }
     }
 
     private bool CheckCompletion()
@@ -154,13 +154,15 @@ public class PuzzleManager : MonoBehaviour
         {
             for (int col = 0; col < _Size; col++)
             {
-                Transform piece = Instantiate(_curentPiecePrefab.transform, _puzzleBoard);
+                PuzzlePiece piece = Instantiate(_curentPiecePrefab, _puzzleBoard);
+                piece.OnClick += HandlePieceChange;
+
                 _inScenePieces.Add(piece);
 
-                piece.localPosition = new Vector3(-1 + (2 * width * col) + width,
+                piece.Transform.localPosition = new Vector3(-1 + (2 * width * col) + width,
                                                   +1 - (2 * width * row) - width,
                                                   0);
-                piece.localScale = ((2 * width) - _GapThickness) * Vector3.one;
+                piece.Transform.localScale = ((2 * width) - _GapThickness) * Vector3.one;
                 piece.name = $"{(row * _Size) + col}";
 
                 if ((row == _Size - 1) && (col == _Size - 1))
@@ -186,6 +188,7 @@ public class PuzzleManager : MonoBehaviour
     {
         for (int i = _inScenePieces.Count - 1; i >= 0; i--)
         {
+            _inScenePieces[i].OnClick -= HandlePieceChange;
             Destroy(_inScenePieces[i].gameObject);
             Debug.Log("Destroyed " + name);
             _inScenePieces[i] = null;
