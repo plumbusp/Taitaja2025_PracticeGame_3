@@ -27,6 +27,7 @@ public class GameStateController : MonoBehaviour
         _PlayModeUI.SetActive(false);
         _DeadScreen.SetActive(true);
         PuzzleManager.Instance.ClosePuzzle();
+        AudioManager.instance.PlayAudio(SFXType.BigLoseTime);
         Time.timeScale = 0f;
     }
     private void ShowWinScreen()
@@ -34,16 +35,19 @@ public class GameStateController : MonoBehaviour
         _PlayModeUI.SetActive(false);
         _WinScreen.SetActive(true);
         PuzzleManager.Instance.ClosePuzzle();
+        AudioManager.instance.PlayAudio(SFXType.BigWinSound);
         Time.timeScale = 0f;
     }
 
     public void BackToMenu()
     {
+        AudioManager.instance.PlayAudio(SFXType.ClickSound);
         SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex - 1);
     }
 
     public void Retry()
     {
+        AudioManager.instance.PlayAudio(SFXType.ClickSound);
         string currentSceneName = SceneManager.GetActiveScene().name;
         SceneManager.LoadScene(currentSceneName);
     }

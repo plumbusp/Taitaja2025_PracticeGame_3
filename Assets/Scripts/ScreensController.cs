@@ -78,7 +78,7 @@ public class ScreensController : MonoBehaviour
         _activeScreens.Add(problem);
         problem.Active = true;
         _healthController.ActiveDecreasersAmount++;
-
+        AudioManager.instance.PlayAudio(SFXType.RetroTakeDamageSound);
         return true;
     }
 

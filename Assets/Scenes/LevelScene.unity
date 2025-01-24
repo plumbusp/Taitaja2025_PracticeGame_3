@@ -506,7 +506,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _healthController: {fileID: 1662022667}
-  _waitTime: 3
+  _waitTime: 8
   _screens:
   - {fileID: 930406498}
   - {fileID: 930406497}
@@ -1507,7 +1507,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _HealthSlider: {fileID: 125469797}
-  _decreasingSpeed: 0.2
+  _decreasingSpeed: 0.15
   _increasingSpeed: 0.2
   _maxValue: 15
   _deadValue: 0.1
@@ -2021,9 +2021,9 @@ SceneRoots:
   m_Roots:
   - {fileID: 453423180}
   - {fileID: 53294565}
-  - {fileID: 234499390}
-  - {fileID: 1662022668}
   - {fileID: 930406487}
+  - {fileID: 1662022668}
+  - {fileID: 234499390}
   - {fileID: 141628576}
   - {fileID: 1460133148}
   - {fileID: 1666208263}

@@ -12,5 +12,7 @@ public enum SFXType
     RetroTakeDamageSound,
     SwooshSound,
     HitSound,
-    WinSound
+    WinSound,
+    BigWinSound,
+    BigLoseTime
 }
